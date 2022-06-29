@@ -53,9 +53,6 @@
 
 static int fd;
 
-static struct timeval lasttv;
-static struct timeval newtv;
-
 //static char gname[20];
 
 static unsigned char cmdbuffer[8][256];
@@ -86,22 +83,12 @@ static int leftskip;
 
 static void errorexit() {
 #ifdef DEBUG
-	abort();
+	abort():
 #endif
 /*   unlink(gname);
    if (cbmf)
       fclose(cbmf);*/
    exit(1);
-}
-
-static void ssleep(const int usec) {
-   gettimeofday(&lasttv, NULL);
-   while (1) {
-      gettimeofday(&newtv, NULL);
-      if (((newtv.tv_usec - lasttv.tv_usec) + ((newtv.tv_sec - lasttv.tv_sec)*1000000)) > usec) {
-         break;
-      }
-   }
 }
 
 static void bitmap_seek(unsigned int offset)
@@ -534,7 +521,7 @@ static void write_command_packet_buf(unsigned char one, unsigned char two, int u
 
 	printf("\n");
 	
-	ssleep(WAIT);
+	usleep(WAIT);
 
 	for (j = 0; j < nread; j++) {
 		memset(&(cmdbuffer[j]),0,256);
@@ -543,7 +530,7 @@ static void write_command_packet_buf(unsigned char one, unsigned char two, int u
 		printf("r: n=%d %s: ", n, (n == -1) ? strerror(errno) : "");
 
 /*		if ((n == -1) && (errno == EAGAIN)) {
-			ssleep(2000);
+			usleep(2000);
 			j--;
 		}*/
 	
@@ -553,7 +540,7 @@ static void write_command_packet_buf(unsigned char one, unsigned char two, int u
 	
 		printf("\n");
 
-		ssleep(WAIT);
+		usleep(WAIT);
 	}
 
 	if (uwait > 0) {
@@ -590,7 +577,7 @@ static int waitforready() {
 	write_command_packet(0xa0, 0xa0, 0, 2);
 
 	while (1) { //(cmdbuffer[0][5] & 0x02) != 0x02) {
-		ssleep(100000);
+		usleep(100000);
 		write_command_packet(0xa0, 0xe0, 0, 1);
 		i++;
 		if (i > 500) {
@@ -654,11 +641,11 @@ static int print_page(int page) {
 		write_command_packet(0xa0, 0xe0, 0, 1);
 
 		while (((cmdbuffer[0][4] & 0x08) == 0x08) || (cmdbuffer[0][0] == 0x00)) {
-			ssleep(100000);
+			usleep(100000);
 			write_command_packet(0xa0, 0xe0, 0, 1);
 		}
 
-		ssleep(2*WAIT);
+		usleep(2*WAIT);
 
 		/*printf("First ten bytes: %x %x %x %x %x %x %x %x %x %x\n", 
 			cbm[ccbm][0], cbm[ccbm][1], cbm[ccbm][2], cbm[ccbm][3], cbm[ccbm][4],
@@ -671,7 +658,7 @@ static int print_page(int page) {
 			do {
 				w = write(fd, &(cbm[ccbm][i]), 4096);
 				printf("w: n=%d/%d %s (i=%d/%d)\n", w, 4096, (w == -1) ? strerror(errno) : "", i, size);
-				ssleep(2*WAIT);
+				usleep(2*WAIT);
 				if (c > 100) {
 					fprintf(stderr, "Error while sending data, timeout.\n");
 					return 0;
@@ -684,7 +671,7 @@ static int print_page(int page) {
 		do {
 			w = write(fd, &(cbm[ccbm][i]), size-i);
 			printf("w: n=%d/%d %s (i=%d/%d)\n", w, size-i, (w == -1) ? strerror(errno) : "", i, size);
-			ssleep(2*WAIT);
+			usleep(2*WAIT);
 			if (c > 100) {
 				fprintf(stderr, "Error while sending data, timeout.\n");
 				return 0;
@@ -701,7 +688,7 @@ static int print_page(int page) {
 		free(cbm[ccbm]);
 		cbm[ccbm] = NULL;
 
-		ssleep(5*WAIT);
+		usleep(5*WAIT);
 	}
 
 	write_command_packet(0xa0, 0xe0, 0, 1);
