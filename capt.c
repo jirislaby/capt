@@ -49,8 +49,6 @@ struct timeval newtv;
 
 //char gname[20];
 
-void INLINE errorexit();
-
 unsigned char cmdbuffer[8][256];
 
 /* Rildo Pragana constants and functions, adapted to CAPT */
@@ -76,6 +74,27 @@ int linecnt=0;
 int pktcnt;
 int topskip=0;
 int leftskip=0;
+
+void errorexit() {
+#ifdef DEBUG
+   int* i = 0;
+   (*i)++;
+#endif
+/*   unlink(gname);
+   if (cbmf)
+      fclose(cbmf);*/
+   exit(1);
+}
+
+void ssleep(const int usec) {
+   gettimeofday(&lasttv, NULL);
+   while (1) {
+      gettimeofday(&newtv, NULL);
+      if (((newtv.tv_usec - lasttv.tv_usec) + ((newtv.tv_sec - lasttv.tv_sec)*1000000)) > usec) {
+         break;
+      }
+   }
+}
 
 void
 bitmap_seek (int offset) {
@@ -484,27 +503,6 @@ int compress_bitmap () {
 /*	fflush(cbmf);
 	fseek(cbmf,0,SEEK_SET);*/
 	return 1;
-}
-
-void INLINE errorexit() {
-#ifdef DEBUG
-   int* i = 0;
-   (*i)++;
-#endif
-/*   unlink(gname);
-   if (cbmf)
-      fclose(cbmf);*/
-   exit(1);
-}
-
-void INLINE ssleep(const int usec) {
-   gettimeofday(&lasttv, NULL);
-   while (1) {
-      gettimeofday(&newtv, NULL);
-      if (((newtv.tv_usec - lasttv.tv_usec) + ((newtv.tv_sec - lasttv.tv_sec)*1000000)) > usec) {
-         break;
-      }
-   }
 }
 
 void write_command_packet_buf(unsigned char one, unsigned char two, int uwait, int nread, unsigned char* buf, int len) {
