@@ -685,26 +685,14 @@ static int print_page(int page) {
 
 int main(int argc, char** argv) {
 	int c;
-	//int reset_flag=1;
 	//int size;
 	int simulate=0;
 	int page=0;
-	//int reset_only=0;
-	//int reset=0;
 	//int tfd;
 
 	bitmapf = stdin;
-	while ((c = getopt(argc,argv,"Rrt:l:sf:")) != -1) {
+	while ((c = getopt(argc,argv,"t:l:sf:")) != -1) {
 		switch (c) {
-/*			case 'R': {
-				reset_only=1;
-				reset=1;
-				break;
-			}
-			case 'r': {
-				reset=1;
-				break;
-			}*/
 			case 't': {
 				sscanf(optarg,"%d",&topskip);
 				break;
@@ -730,8 +718,6 @@ int main(int argc, char** argv) {
 	fd = open("/dev/usb/lp0", O_RDWR | O_NONBLOCK);
 	//fd = open("/dev/lp0", O_RDWR);
 
-//	if (!reset_only) {
-		/* pages printing loop */
 /*      struct timeval ltv;
       struct timeval ntv;*/
       
