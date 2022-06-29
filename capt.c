@@ -61,28 +61,28 @@ static struct timeval newtv;
 static unsigned char cmdbuffer[8][256];
 
 /* Rildo Pragana constants and functions, adapted to CAPT */
-static FILE *bitmapf = 0;
-//static FILE *cbmf = 0;
-static int cbmbuf=0; //Current buffer
+static FILE *bitmapf;
+//static FILE *cbmf;
+static int cbmbuf; //Current buffer
 static unsigned char* bmptr[2];
-static unsigned char* bmbuf[2] = {NULL, NULL}; 		/* two pbm bitmap lines with provision for leftskip */
-static int bmwidth=0, bmheight=0;
+static unsigned char* bmbuf[2];		/* two pbm bitmap lines with provision for leftskip */
+static int bmwidth, bmheight;
 
 static unsigned char band[65536]; /* Max band size is around 592*104 = 61568 */
 static unsigned char* bandptr = band;
-static int bsize=0;
+static int bsize;
 
 /* the compressed bitmap, separated in packets of at most 2^16-1 bytes */
-static int ccbm = 0;
+static int ccbm;
 static unsigned char* cbm[100];
 
 static unsigned char garbage[600];
 static unsigned char *cbmp;
-static int csize=0;				/* compressed line size */
-static int linecnt=0;
+static int csize;				/* compressed line size */
+static int linecnt;
 static int pktcnt;
-static int topskip=0;
-static int leftskip=0;
+static int topskip;
+static int leftskip;
 
 static void errorexit() {
 #ifdef DEBUG
