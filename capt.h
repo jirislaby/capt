@@ -33,11 +33,5 @@
 
 #define PAGE_DELAY 3000000 //Delay between pages, in usec
 
-#ifdef DEBUG
-#define INLINE 
-#else
-#define INLINE inline
-#endif
-
 /* end of file */
 

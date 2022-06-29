@@ -555,7 +555,7 @@ void write_command_packet_buf(unsigned char one, unsigned char two, int uwait, i
 	}
 }
 
-INLINE void write_command_packet(unsigned char one, unsigned char two, int uwait, int nread) {
+void write_command_packet(unsigned char one, unsigned char two, int uwait, int nread) {
 	write_command_packet_buf(one, two, uwait, nread, NULL, 0);
 }
 
