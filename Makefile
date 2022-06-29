@@ -3,7 +3,7 @@
 # Adapted from Samsung ML-85P driver by Rildo Pragana
 
 CC=gcc
-CFLAGS=-O2 -g -Wall -Wextra
+CFLAGS=-O2 -g -Wall -Wextra -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fstack-protector-strong
 RELEASE=0.1
 DESTDIR=
 PREFIX=/usr

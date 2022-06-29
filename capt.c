@@ -64,7 +64,7 @@ static FILE *bitmapf;
 static int cbmbuf; //Current buffer
 static unsigned char* bmptr[2];
 static unsigned char* bmbuf[2];		/* two pbm bitmap lines with provision for leftskip */
-static int bmwidth, bmheight;
+static unsigned int bmwidth, bmheight;
 
 static unsigned char band[65536]; /* Max band size is around 592*104 = 61568 */
 static unsigned char* bandptr = band;
@@ -77,9 +77,9 @@ static unsigned char* cbm[100];
 static unsigned char garbage[600];
 static unsigned char *cbmp;
 static int csize;				/* compressed line size */
-static int linecnt;
+static unsigned int linecnt;
 static int pktcnt;
-static int topskip;
+static unsigned int topskip;
 static int leftskip;
 
 static void errorexit() {
@@ -97,10 +97,13 @@ static void bitmap_seek(unsigned int offset)
 	fprintf(stderr,  "seek = %d\n", offset);
 	if (offset) {
 		while (offset > sizeof(garbage)) {
-			fread(bmbuf[cbmbuf],1,sizeof(garbage),bitmapf);
+			if (fread(bmbuf[cbmbuf], 1 ,sizeof(garbage), bitmapf) !=
+					sizeof(garbage))
+				errorexit();
 			offset -= sizeof(garbage);
 		}
-		fread(bmbuf[cbmbuf],1,offset,bitmapf);
+		if (fread(bmbuf[cbmbuf], 1, offset, bitmapf) != offset)
+			errorexit();
 	}	
 }
 
@@ -108,7 +111,7 @@ static void next_page() {
 	/* we can't use fseek here because it may come from a pipe! */
 	int skip;
 	skip = (bmheight - topskip - linecnt) * bmwidth;
-	fprintf(stderr,  "bmheight = %d, bmwidth = %d, leftskip = %d, topskip = %d, linecnt = %d, skip = %d\n", 
+	fprintf(stderr,  "bmheight = %u, bmwidth = %u, leftskip = %d, topskip = %u, linecnt = %u, skip = %d\n", 
 		bmheight, bmwidth, leftskip, topskip, linecnt, skip);
 	if (skip>0)
 		bitmap_seek(skip);
@@ -124,11 +127,13 @@ static unsigned char* get_line() {
 
 	if (linecnt<(bmheight-topskip)) {
 		if (bmwidth > 800) {
-			fread(bmbuf[cbmbuf],1,800,bitmapf);
+			if (fread(bmbuf[cbmbuf], 1, 800, bitmapf) != 800)
+				errorexit();
 			bitmap_seek(bmwidth-800);
 		}
 		else {
-			fread(bmbuf[cbmbuf],1,bmwidth,bitmapf);
+			if (fread(bmbuf[cbmbuf], 1, bmwidth, bitmapf) != bmwidth)
+				errorexit();
 			//fprintf(stderr, " - %d:%d (%d)\n", linecnt, r, csize);
 		}
 	}
@@ -307,10 +312,11 @@ static int compress_bitmap() {
 
 	/* bypass the comment line */
 	do {
-		fgets((char *)cbm[0], 200, bitmapf);
+		if (!fgets((char *)cbm[0], 200, bitmapf))
+			errorexit();
 	} while (cbm[0][0] == '#');
 	/* read the bitmap's dimensions */
-	if (sscanf((char *)cbm[0], "%d %d", &bmwidth, &bmheight) < 2) {
+	if (sscanf((char *)cbm[0], "%u %d", &bmwidth, &bmheight) < 2) {
 		fprintf(stderr,"Bitmap file with wrong size fields.\n");
 		errorexit();
 	}
@@ -346,7 +352,7 @@ static int compress_bitmap() {
 			cnt = LINES_BY_PAGE-linecnt;
 		}
 		
-		fprintf(stderr,"cnt: %d, band: %d, linecnt: %d, diff : %d\n",cnt,band,linecnt,diff);
+		fprintf(stderr,"cnt: %d, band: %d, linecnt: %u, diff : %d\n",cnt,band,linecnt,diff);
 
 		while (1) {
 			rep = 0;
@@ -475,7 +481,7 @@ static int compress_bitmap() {
 
 			cline = get_line();
 
-			//fprintf(stderr,"!cnt: %d, band: %d, linecnt: %d, diff : %d\n",cnt,band,linecnt,diff);
+			//fprintf(stderr,"!cnt: %d, band: %d, linecnt: %u, diff : %d\n",cnt,band,linecnt,diff);
 
 			if (cnt > 0) { /* There are line left */
 				diff = last_difference()+1;
@@ -695,7 +701,7 @@ int main(int argc, char** argv) {
 	while ((c = getopt(argc,argv,"t:l:sf:")) != -1) {
 		switch (c) {
 			case 't': {
-				sscanf(optarg,"%d",&topskip);
+				sscanf(optarg,"%u",&topskip);
 				break;
 			}
 			case 'l': {
