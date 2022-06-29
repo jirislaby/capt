@@ -16,8 +16,10 @@ capt: capt.c Makefile
 	${CC} ${INCLUDE} ${CFLAGS} capt.c -o capt
 
 install: all
+	install -d $(DESTDIR)$(BINDIR)
 	install -s -m a=rx capt $(DESTDIR)$(BINDIR)
 	install -m a=rx capt-print $(DESTDIR)$(BINDIR)
+	install -d $(DESTDIR)$(DATADIR)/cups/model/
 	install -m a=r ppd/Canon-LBP-810-capt.ppd $(DESTDIR)$(DATADIR)/cups/model
 
 clean:
