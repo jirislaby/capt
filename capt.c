@@ -195,7 +195,6 @@ void out_packet_buf(int cnt, unsigned char* c) {
 int out_packet(int cnt, unsigned char c1, unsigned char c2, unsigned char c3, unsigned char c4) {
 	if (cnt == 0) {
 		if (c1 == 1) { /* band end */
-			int startnext = 0;
 			if (csize+bsize > 65500) { /* 36 bytes less for security */
 				out_packet(0, 0, 0, 0, 0);
 			}
@@ -219,7 +218,7 @@ int out_packet(int cnt, unsigned char c1, unsigned char c2, unsigned char c3, un
 			cbm[ccbm][2] = csize & 0x00FF;
 			cbm[ccbm][3] = (csize & 0xFF00) >> 8;
 
-			fprintf(stderr, "Packet %d flushed: %d (%d, @%x)\n", ccbm, csize, c2, cbm[ccbm]);
+			fprintf(stderr, "Packet %d flushed: %d (%d, @%p)\n", ccbm, csize, c2, cbm[ccbm]);
 			
 			ccbm++;
 			if (ccbm >= 99) {
@@ -302,10 +301,10 @@ int compress_bitmap () {
 		errorexit();
 	}
 
-	if (fgets(cbm[0],200,bitmapf)<=0) {
+	if (fgets((char *)cbm[0], 200, bitmapf) <= 0) {
 		return 0;
 	}
-	if (strncmp(cbm[0],"P4",2)) {
+	if (strncmp((char *)cbm[0], "P4", 2)) {
 		fprintf(stderr,"Wrong file format.\n");
 		fprintf(stderr,"file position: %lx\n",ftell(bitmapf));
 		errorexit();
@@ -318,10 +317,10 @@ int compress_bitmap () {
 
 	/* bypass the comment line */
 	do {
-		fgets(cbm[0],200,bitmapf);
+		fgets((char *)cbm[0], 200, bitmapf);
 	} while (cbm[0][0] == '#');
 	/* read the bitmap's dimensions */
-	if (sscanf(cbm[0],"%d %d",&bmwidth,&bmheight)<2) {
+	if (sscanf((char *)cbm[0], "%d %d", &bmwidth, &bmheight) < 2) {
 		fprintf(stderr,"Bitmap file with wrong size fields.\n");
 		errorexit();
 	}
