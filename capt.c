@@ -44,7 +44,11 @@
 #ifdef DEBUG
 #define DPRINTF(fmt, args...) printf(fmt, ## args)
 #else
-#define DPRINTF(fmt, args...)
+#define DPRINTF(fmt, args...) ({                                \
+		if (0)                                          \
+			printf(fmt, ## args);			\
+		0;                                              \
+	})
 #endif
 
 static int fd;
