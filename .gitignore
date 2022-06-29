@@ -1,0 +1,6 @@
+/capt
+
+cscope.out
+
+*.o
+.*.sw*
