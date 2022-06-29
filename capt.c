@@ -101,8 +101,8 @@ void ssleep(const int usec) {
    }
 }
 
-void
-bitmap_seek (int offset) {
+void bitmap_seek(unsigned int offset)
+{
 	fprintf(stderr,  "seek = %d\n", offset);
 	if (offset) {
 		while (offset > sizeof(garbage)) {
@@ -113,8 +113,7 @@ bitmap_seek (int offset) {
 	}	
 }
 
-void
-next_page(int page) {
+void next_page() {
 	/* we can't use fseek here because it may come from a pipe! */
 	int skip;
 	skip = (bmheight - topskip - linecnt) * bmwidth;
@@ -301,7 +300,7 @@ int compress_bitmap () {
 		errorexit();
 	}
 
-	if (fgets((char *)cbm[0], 200, bitmapf) <= 0) {
+	if (fgets((char *)cbm[0], 200, bitmapf) == NULL) {
 		return 0;
 	}
 	if (strncmp((char *)cbm[0], "P4", 2)) {
@@ -645,8 +644,8 @@ int print_page(int page) {
 	write_command_packet(0xa0, 0xa0, 0, 2);
 	write_command_packet(0xa1, 0xa0, 0, 2);
 
-	unsigned int size = 0;
-	int i, w, c;
+	unsigned int i, size = 0;
+	int w, c;
 	
 	for (ccbm = 0; cbm[ccbm] != NULL; ccbm++) {
 		write_command_packet(0xa0, 0xe0, 0, 1);
@@ -664,7 +663,7 @@ int print_page(int page) {
 
 		size = (((unsigned int)cbm[ccbm][3]) << 8) + (unsigned int)cbm[ccbm][2];
 		printf("size: %d, index: %d\n", size, ccbm);
-		for (i = 0; (i+4096) < size; i += 4096) {
+		for (i = 0; i + 4096 < size; i += 4096) {
 			c = 0;
 			do {
 				w = write(fd, &(cbm[ccbm][i]), 4096);
@@ -784,7 +783,8 @@ int main(int argc, char** argv) {
 	            //gettimeofday(&ltv, NULL);
 			}
 //			fclose(cbmf);
-			next_page(page++);
+			next_page();
+			page++;
 //			unlink(gname);
 		}
 //	}

@@ -3,7 +3,7 @@
 # Adapted from Samsung ML-85P driver by Rildo Pragana
 
 CC=gcc
-CFLAGS=-O2 -g -Wall
+CFLAGS=-O2 -g -Wall -Wextra
 
 RELEASE=0.1
 
