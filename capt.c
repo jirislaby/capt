@@ -23,6 +23,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <err.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -717,6 +718,9 @@ int main(int argc, char** argv) {
 
 	fd = open("/dev/usb/lp0", O_RDWR | O_NONBLOCK);
 	//fd = open("/dev/lp0", O_RDWR);
+	if (fd < 0) {
+		err(1, "Cannot open lp0");
+	}
 
 /*      struct timeval ltv;
       struct timeval ntv;*/
