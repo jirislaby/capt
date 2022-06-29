@@ -9,7 +9,7 @@ RELEASE=0.1
 
 all: capt
 
-capt: capt.c capt.h Makefile
+capt: capt.c Makefile
 	${CC} ${INCLUDE} ${CFLAGS} capt.c -o capt
 
 install: all

@@ -31,9 +31,14 @@
 #include <sys/time.h>
 #include <stdlib.h>
 
-#include "capt.h"
-
 #define WAIT 8000
+#define LINE_SIZE		592
+//#define PIXELS_BY_ROW		(LINE_SIZE*8)
+//#define LINES_BY_PAGE		6760 //6774
+#define LINES_BY_PAGE		6968
+#define ROWS_BY_BAND		104 // number of rows in a band
+//#define LINES_BY_PAGE		862
+//#define ROWS_BY_BAND		13 // number of rows in a band
 
 #undef DEBUG
 #ifdef DEBUG
