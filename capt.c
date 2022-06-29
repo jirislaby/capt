@@ -498,7 +498,7 @@ static int compress_bitmap() {
 	return 1;
 }
 
-static void write_command_packet_buf(unsigned char one, unsigned char two, int uwait, int nread, unsigned char* buf, int len) {
+static void write_command_packet_buf(unsigned char one, unsigned char two, int nread, unsigned char* buf, int len) {
 	int n, i, j;
 	unsigned char buffer[256];	
 
@@ -542,21 +542,17 @@ static void write_command_packet_buf(unsigned char one, unsigned char two, int u
 
 		usleep(WAIT);
 	}
-
-	if (uwait > 0) {
-		usleep(uwait);
-	}
 }
 
-static void write_command_packet(unsigned char one, unsigned char two, int uwait, int nread) {
-	write_command_packet_buf(one, two, uwait, nread, NULL, 0);
+static void write_command_packet(unsigned char one, unsigned char two, int nread) {
+	write_command_packet_buf(one, two, nread, NULL, 0);
 }
 
 int waitforpaper() {
 	int i;
 	for (i = 0; i < 120; i++) {
-		write_command_packet(0xa0, 0xa0, 0, 2);
-		write_command_packet(0xa1, 0xa0, 0, 2);
+		write_command_packet(0xa0, 0xa0, 2);
+		write_command_packet(0xa1, 0xa0, 2);
 		//d0 00 00 02 b0 09 b3 0d 7d 00 [fd|00] 00 00 00 00 00
 		
 		if (cmdbuffer[1][10] == 0xfd) {
@@ -574,11 +570,11 @@ int waitforpaper() {
 static int waitforready() {
 /*	int i = 0;
 
-	write_command_packet(0xa0, 0xa0, 0, 2);
+	write_command_packet(0xa0, 0xa0, 2);
 
 	while (1) { //(cmdbuffer[0][5] & 0x02) != 0x02) {
 		usleep(100000);
-		write_command_packet(0xa0, 0xe0, 0, 1);
+		write_command_packet(0xa0, 0xe0, 1);
 		i++;
 		if (i > 500) {
 			return 1;
@@ -589,7 +585,7 @@ static int waitforready() {
 
 static int print_page(int page) {
 	if (page == 0) {
-		write_command_packet(0xa1, 0xa1, 0, 2);
+		write_command_packet(0xa1, 0xa1, 2);
 
 		if ((cmdbuffer[0][0] != 0xa1) || (cmdbuffer[0][1] != 0xa1)) {
 			fprintf(stderr, "Invalid printer state, printer not connected ?\n");
@@ -603,20 +599,20 @@ static int print_page(int page) {
 	}
 
 	if (page == 0) { /* First page initialization */
-		write_command_packet(0xa0, 0xa2, 0, 1);
-		write_command_packet(0xa0, 0xe0, 0, 1);
-		write_command_packet(0xa1, 0xa0, 0, 2);
-		write_command_packet(0xa4, 0xe0, 0, 1);
+		write_command_packet(0xa0, 0xa2, 1);
+		write_command_packet(0xa0, 0xe0, 1);
+		write_command_packet(0xa1, 0xa0, 2);
+		write_command_packet(0xa4, 0xe0, 1);
 
 		{
 			unsigned char buf[] = {0xee, 0xdb, 0xea, 0xad, 0x00, 0x00, 0x00, 0x00};
-			write_command_packet_buf(0xa5, 0xe0, 0, 1, (unsigned char*)&buf, 8);
+			write_command_packet_buf(0xa5, 0xe0, 1, (unsigned char*)&buf, 8);
 		}
 
-		write_command_packet(0xa0, 0xe0, 0, 1);
-		write_command_packet(0xa0, 0xa0, 0, 2);
-		write_command_packet(0xa1, 0xa0, 0, 2);
-		write_command_packet(0xa0, 0xe0, 0, 1);
+		write_command_packet(0xa0, 0xe0, 1);
+		write_command_packet(0xa0, 0xa0, 2);
+		write_command_packet(0xa1, 0xa0, 2);
+		write_command_packet(0xa0, 0xe0, 1);
 	}
 	
 	{
@@ -625,24 +621,24 @@ static int print_page(int page) {
 			0x1f, 0x1f,	0x00, 0x11, 0x03, 0x01, 0x01, 0x01, 0x02, 0x00, 
 			0x00, 0x00, 0x70, 0x00, 0x78, 0x00, 0x50, 0x02, 0x7a, 0x1a, 
 			0x60, 0x13, 0x67, 0x1b};
-		write_command_packet_buf(0xa0, 0xd0, 0, 0, (unsigned char*)&buf, 34);
+		write_command_packet_buf(0xa0, 0xd0, 0, (unsigned char*)&buf, 34);
 	}
 
-	write_command_packet(0xa0, 0xe0, 0, 1);
-	write_command_packet(0xa1, 0xd0, 0, 0);
-	write_command_packet(0xa0, 0xe0, 0, 1);
-	write_command_packet(0xa0, 0xa0, 0, 2);
-	write_command_packet(0xa1, 0xa0, 0, 2);
+	write_command_packet(0xa0, 0xe0, 1);
+	write_command_packet(0xa1, 0xd0, 0);
+	write_command_packet(0xa0, 0xe0, 1);
+	write_command_packet(0xa0, 0xa0, 2);
+	write_command_packet(0xa1, 0xa0, 2);
 
 	unsigned int i, size = 0;
 	int w, c;
 	
 	for (ccbm = 0; cbm[ccbm] != NULL; ccbm++) {
-		write_command_packet(0xa0, 0xe0, 0, 1);
+		write_command_packet(0xa0, 0xe0, 1);
 
 		while (((cmdbuffer[0][4] & 0x08) == 0x08) || (cmdbuffer[0][0] == 0x00)) {
 			usleep(100000);
-			write_command_packet(0xa0, 0xe0, 0, 1);
+			write_command_packet(0xa0, 0xe0, 1);
 		}
 
 		usleep(2*WAIT);
@@ -691,10 +687,10 @@ static int print_page(int page) {
 		usleep(5*WAIT);
 	}
 
-	write_command_packet(0xa0, 0xe0, 0, 1);
-	write_command_packet(0xa2, 0xd0, 0, 0);
-	write_command_packet(0xa0, 0xe0, 0, 1);
-	write_command_packet(0xa1, 0xa0, 0, 2);
+	write_command_packet(0xa0, 0xe0, 1);
+	write_command_packet(0xa2, 0xd0, 0);
+	write_command_packet(0xa0, 0xe0, 1);
+	write_command_packet(0xa1, 0xa0, 2);
 
 	return waitforready();
 
