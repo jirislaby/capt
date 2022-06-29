@@ -47,40 +47,40 @@
 #define DPRINTF(fmt, args...)
 #endif
 
-int fd;
+static int fd;
 
-struct timeval lasttv;
-struct timeval newtv;
+static struct timeval lasttv;
+static struct timeval newtv;
 
-//char gname[20];
+//static char gname[20];
 
-unsigned char cmdbuffer[8][256];
+static unsigned char cmdbuffer[8][256];
 
 /* Rildo Pragana constants and functions, adapted to CAPT */
-FILE *bitmapf = 0;
-//FILE *cbmf = 0;
-int cbmbuf=0; //Current buffer
-unsigned char* bmptr[2];
-unsigned char* bmbuf[2] = {NULL, NULL}; 		/* two pbm bitmap lines with provision for leftskip */
-int bmwidth=0, bmheight=0;
+static FILE *bitmapf = 0;
+//static FILE *cbmf = 0;
+static int cbmbuf=0; //Current buffer
+static unsigned char* bmptr[2];
+static unsigned char* bmbuf[2] = {NULL, NULL}; 		/* two pbm bitmap lines with provision for leftskip */
+static int bmwidth=0, bmheight=0;
 
-unsigned char band[65536]; /* Max band size is around 592*104 = 61568 */
-unsigned char* bandptr = band;
-int bsize=0;
+static unsigned char band[65536]; /* Max band size is around 592*104 = 61568 */
+static unsigned char* bandptr = band;
+static int bsize=0;
 
 /* the compressed bitmap, separated in packets of at most 2^16-1 bytes */
-int ccbm = 0;
-unsigned char* cbm[100];
+static int ccbm = 0;
+static unsigned char* cbm[100];
 
-unsigned char garbage[600];
-unsigned char *cbmp;
-int csize=0;				/* compressed line size */
-int linecnt=0;
-int pktcnt;
-int topskip=0;
-int leftskip=0;
+static unsigned char garbage[600];
+static unsigned char *cbmp;
+static int csize=0;				/* compressed line size */
+static int linecnt=0;
+static int pktcnt;
+static int topskip=0;
+static int leftskip=0;
 
-void errorexit() {
+static void errorexit() {
 #ifdef DEBUG
    int* i = 0;
    (*i)++;
@@ -91,7 +91,7 @@ void errorexit() {
    exit(1);
 }
 
-void ssleep(const int usec) {
+static void ssleep(const int usec) {
    gettimeofday(&lasttv, NULL);
    while (1) {
       gettimeofday(&newtv, NULL);
@@ -101,7 +101,7 @@ void ssleep(const int usec) {
    }
 }
 
-void bitmap_seek(unsigned int offset)
+static void bitmap_seek(unsigned int offset)
 {
 	fprintf(stderr,  "seek = %d\n", offset);
 	if (offset) {
@@ -113,7 +113,7 @@ void bitmap_seek(unsigned int offset)
 	}	
 }
 
-void next_page() {
+static void next_page() {
 	/* we can't use fseek here because it may come from a pipe! */
 	int skip;
 	skip = (bmheight - topskip - linecnt) * bmwidth;
@@ -126,7 +126,7 @@ void next_page() {
 
 /* End of Rildo Pragana constants and functions */
 
-unsigned char* get_line() {
+static unsigned char* get_line() {
 	cbmbuf = (cbmbuf == 1) ? 0 : 1;
 
 	memset(bmbuf[cbmbuf],0,800);
@@ -156,7 +156,7 @@ unsigned char* get_line() {
 /* Return the index (relative to bmptr[X]) of the last difference between 
  * the last line and the current one, -1 if there isn't any.
  */
-int last_difference() {
+static int last_difference() {
 	int diff = -1;
 	int i = 0;
 
@@ -171,7 +171,7 @@ int last_difference() {
 	return diff;
 }
 
-void out_packet_buf(int cnt, unsigned char* c) {
+static void out_packet_buf(int cnt, unsigned char* c) {
 	int i;
 
 	DPRINTF("->%d :", cnt);
@@ -191,7 +191,7 @@ void out_packet_buf(int cnt, unsigned char* c) {
 	}
 }
 
-int out_packet(int cnt, unsigned char c1, unsigned char c2, unsigned char c3, unsigned char c4) {
+static int out_packet(int cnt, unsigned char c1, unsigned char c2, unsigned char c3, unsigned char c4) {
 	if (cnt == 0) {
 		if (c1 == 1) { /* band end */
 			if (csize+bsize > 65500) { /* 36 bytes less for security */
@@ -280,7 +280,7 @@ int out_packet(int cnt, unsigned char c1, unsigned char c2, unsigned char c3, un
 }
 
 /* Based on Rildo Pragana's driver, adapted to CAPT protocol */
-int compress_bitmap () {
+static int compress_bitmap() {
 	int band,diff;
 	int state; //-1 - in a repetition, 0 - no rep
 	int rep; // Number of repetitions
@@ -508,7 +508,7 @@ int compress_bitmap () {
 	return 1;
 }
 
-void write_command_packet_buf(unsigned char one, unsigned char two, int uwait, int nread, unsigned char* buf, int len) {
+static void write_command_packet_buf(unsigned char one, unsigned char two, int uwait, int nread, unsigned char* buf, int len) {
 	int n, i, j;
 	unsigned char buffer[256];	
 
@@ -558,7 +558,7 @@ void write_command_packet_buf(unsigned char one, unsigned char two, int uwait, i
 	}
 }
 
-void write_command_packet(unsigned char one, unsigned char two, int uwait, int nread) {
+static void write_command_packet(unsigned char one, unsigned char two, int uwait, int nread) {
 	write_command_packet_buf(one, two, uwait, nread, NULL, 0);
 }
 
@@ -581,7 +581,7 @@ int waitforpaper() {
 	return 0;
 }
 
-int waitforready() {
+static int waitforready() {
 /*	int i = 0;
 
 	write_command_packet(0xa0, 0xa0, 0, 2);
@@ -597,7 +597,7 @@ int waitforready() {
 	return 1;
 }
 
-int print_page(int page) {
+static int print_page(int page) {
 	if (page == 0) {
 		write_command_packet(0xa1, 0xa1, 0, 2);
 
