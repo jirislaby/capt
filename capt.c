@@ -567,22 +567,6 @@ int waitforpaper() {
 	return 0;
 }
 
-static int waitforready() {
-/*	int i = 0;
-
-	write_command_packet(0xa0, 0xa0, 2);
-
-	while (1) { //(cmdbuffer[0][5] & 0x02) != 0x02) {
-		usleep(100000);
-		write_command_packet(0xa0, 0xe0, 1);
-		i++;
-		if (i > 500) {
-			return 1;
-		}
-	}*/
-	return 1;
-}
-
 static int print_page(int page) {
 	if (page == 0) {
 		write_command_packet(0xa1, 0xa1, 2);
@@ -692,7 +676,7 @@ static int print_page(int page) {
 	write_command_packet(0xa0, 0xe0, 1);
 	write_command_packet(0xa1, 0xa0, 2);
 
-	return waitforready();
+	return 1;
 
 	//idle(5);
 
