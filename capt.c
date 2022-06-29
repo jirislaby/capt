@@ -86,8 +86,7 @@ static int leftskip;
 
 static void errorexit() {
 #ifdef DEBUG
-   int* i = 0;
-   (*i)++;
+	abort();
 #endif
 /*   unlink(gname);
    if (cbmf)
